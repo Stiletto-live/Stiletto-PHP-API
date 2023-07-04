@@ -1,4 +1,6 @@
-## Stiletto API
+## This API has been completely rewritten/redesigned in Fastify (NodeJS)
+
+## Stiletto PHP API
 
 This API is designed to be hosted in any hosting with SLIM 4.
 
