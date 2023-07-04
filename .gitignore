@@ -1,0 +1,9 @@
+
+*.psd
+items/*
+maps/*
+markers/*
+symbols/
+v2/.env
+v2/composer.lock
+maps.rar

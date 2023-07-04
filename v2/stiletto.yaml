@@ -1,0 +1,2865 @@
+openapi: 3.0.0
+info:
+  title: Stiletto API
+  description: 'API for [Stiletto Web](https://github.com/dm94/stiletto-web)'
+  version: 2.10.3
+  contact:
+    name: Dani
+    email: dm94official@hotmail.es
+paths:
+  /users:
+    get:
+      summary: getUser
+      operationId: getUser
+      responses:
+        '202':
+          description: A JSON array of user data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nickname:
+                    type: string
+                    description: Name of the user in the game
+                    example: TEST USER
+                  discordtag:
+                    type: string
+                    description: Tag of discord
+                    example: DEMO#0000
+                  clanid:
+                    type: integer
+                    description: Clan ID
+                  clanname:
+                    type: string
+                    description: Clan name
+                    example: Example Clan
+                  leaderid:
+                    type: string
+                    description: Discord ID of the clan leader
+                    example: '000000000000000000'
+              examples:
+                example-1:
+                  value:
+                    nickname: TEST USER
+                    discordtag: DEMO#0000
+                    clanid: 0
+                    clanname: Example Clan
+                    leaderid: '000000000000000000'
+        '205':
+          description: This user cannot be found
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - users
+      description: Returns a user's information
+      security:
+        - token: []
+    options:
+      summary: Endpoint to avoid problems with CORS
+      operationId: users
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+    parameters: []
+  '/users/{discordid}':
+    delete:
+      summary: deleteUser
+      operationId: deleteUser
+      parameters:
+        - name: discordid
+          in: path
+          required: true
+          description: Discord ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The user has been successfully deleted
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - users
+      description: Delete the user
+      security:
+        - token: []
+    put:
+      summary: addNick
+      operationId: addNick
+      parameters:
+        - name: discordid
+          in: path
+          required: true
+          description: Discord ID
+          schema:
+            type: string
+        - name: dataupdate
+          in: query
+          required: true
+          description: Nick to be added
+          schema:
+            type: string
+      responses:
+        '202':
+          description: The nick to user has been added correctly
+        '401':
+          description: These connection data are wrong
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - users
+      description: Update a user's game name
+      security:
+        - token: []
+    parameters:
+      - schema:
+          type: string
+        name: discordid
+        in: path
+        required: true
+        description: User Discord ID
+    options:
+      summary: Endpoint to avoid problems with CORS
+      operationId: usersdiscordid
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/users/{discordid}/tech':
+    parameters:
+      - schema:
+          type: string
+        name: discordid
+        in: path
+        required: true
+    options:
+      summary: Endpoint to avoid problems with CORS
+      operationId: options-users-discordid-tech
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+    put:
+      summary: Add tech
+      operationId: addTech
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '503':
+          description: Service Unavailable
+      description: Adds the list of learned technologies to that user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+        description: List of technologies learned
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: tree
+          description: Tree of technology
+          required: true
+      tags:
+        - tech
+      security:
+        - token: []
+    get:
+      summary: Get Tech
+      operationId: getLearned
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      description: Give back what you have learned from that technology tree.
+      security:
+        - token: []
+      parameters: []
+      tags:
+        - tech
+  /clans:
+    get:
+      summary: Return the list of clans
+      description: Return the list of clans
+      operationId: getClans
+      responses:
+        '202':
+          description: JSON array with the list of clans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ClanInfo'
+              examples: {}
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      parameters:
+        - schema:
+            type: integer
+            default: 10
+          in: query
+          name: pageSize
+        - schema:
+            type: integer
+            default: 1
+          in: query
+          name: page
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: Filter by clan name
+        - schema:
+            type: string
+          in: query
+          name: region
+          description: Filter by region
+    post:
+      summary: To create a new clan
+      operationId: createClan
+      parameters:
+        - name: clanname
+          in: query
+          required: true
+          description: Name of Clan
+          example: Example Clan
+          schema:
+            type: string
+        - name: clancolor
+          in: query
+          description: The colour of the clan in hexadecimal
+          example: '#e3f218'
+          schema:
+            type: string
+        - name: clandiscord
+          in: query
+          description: Discord server invitation code
+          example: PdXxUWd
+          schema:
+            type: string
+        - schema:
+            type: boolean
+          in: query
+          name: recruit
+        - schema:
+            type: string
+          in: query
+          name: region
+      responses:
+        '201':
+          description: Clan created
+        '401':
+          description: These connection data are wrong
+        '405':
+          description: You already have a clan
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      description: To create a clan. The values of clancolor and clandiscord can be null
+      security:
+        - token: []
+    delete:
+      summary: leaveClan
+      operationId: leaveClan
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: This user cannot be found
+        '503':
+          $ref: '#/components/responses/503'
+      description: It is for the user to leave the clan.
+      parameters: []
+      tags:
+        - clans
+      security:
+        - token: []
+    options:
+      summary: ''
+      operationId: clans
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/clans/{clanId}':
+    get:
+      summary: Return the information of the clan members
+      operationId: getClanInfo
+      parameters:
+        - name: clanId
+          in: path
+          required: true
+          description: Clan ID
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A JSON array of user in the clan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClanInfo'
+              examples: {}
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      description: Returns basic clan information
+    delete:
+      summary: 'Delete the clan, only the leader can be delete the clan'
+      operationId: deleteClan
+      parameters:
+        - name: clanId
+          in: path
+          required: true
+          description: Clan ID
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The clan has been successfully deleted
+        '405':
+          description: You do not have the necessary powers to take this action
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      description: Delete a clan. It is necessary to be the leader of the clan in order to perform this action
+      security:
+        - token: []
+    parameters:
+      - schema:
+          type: integer
+        name: clanId
+        in: path
+        required: true
+        description: Clan Id
+    options:
+      summary: Endpoint to avoid problems with CORS
+      operationId: clansclanId
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+    put:
+      summary: Update Clan
+      operationId: updateClan
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      description: To update the clan. Only the leader can use this endpoint
+      security:
+        - token: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: clanname
+          description: Name of Clan
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: clancolor
+          description: The colour of the clan in hexadecimal
+        - schema:
+            type: string
+          in: query
+          name: clandiscord
+          description: Discord server invitation code
+        - schema:
+            type: string
+          in: query
+          name: symbol
+          description: Image of the flag
+        - schema:
+            type: boolean
+          in: query
+          name: recruit
+        - schema:
+            type: string
+          in: query
+          name: region
+      tags:
+        - clans
+  '/clans/{clanId}/discordbot':
+    parameters:
+      - schema:
+          type: string
+        name: clanId
+        in: path
+        required: true
+        description: Clan Id
+    get:
+      summary: Get Discord Config
+      tags:
+        - clans
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotConfig'
+              examples:
+                example-1:
+                  value:
+                    discordid: '5345345345435'
+                    botLanguaje: en
+                    readClanLog: true
+                    automaticKick: false
+                    setNotReadyPVP: false
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      operationId: getDiscordConfig
+      description: Return the bot configuration
+      security:
+        - token: []
+    put:
+      summary: Update Bot Config
+      operationId: updateBotConfig
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '503':
+          description: Service Unavailable
+      tags:
+        - clans
+      description: Update the bot configuration
+      security:
+        - token: []
+      parameters:
+        - schema:
+            type: string
+            minLength: 0
+            maxLength: 2
+            default: en
+          in: query
+          name: languaje
+        - schema:
+            type: boolean
+          in: query
+          name: clanlog
+        - schema:
+            type: boolean
+          in: query
+          name: kick
+        - schema:
+            type: boolean
+          in: query
+          name: readypvp
+        - schema:
+            type: string
+          in: query
+          name: walkeralarm
+    options:
+      summary: ''
+      operationId: clansclanIddiscordbot
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/clans/{clanId}/members':
+    get:
+      summary: Return the information of the clan members
+      operationId: getMembers
+      parameters:
+        - name: clanId
+          in: path
+          required: true
+          description: Clan ID
+          schema:
+            type: integer
+      responses:
+        '202':
+          description: A JSON array of user in the clan
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    discordid:
+                      type: string
+                      description: Discord ID of the member
+                      example: '000000000000000000'
+                    nickname:
+                      type: string
+                      description: Name of the user in the game
+                      example: TEST USER
+                    discordTag:
+                      type: string
+                      description: Member discord tag
+                      example: DEMO#0000
+                    leaderid:
+                      type: string
+                      description: Discord ID of the clan leader
+                      example: '000000000000000000'
+              examples:
+                example-1:
+                  value:
+                    - discordid: '000000000000000000'
+                      nickname: TEST USER
+                      discordTag: DEMO#0000
+                      leaderid: '000000000000000000'
+        '401':
+          description: These connection data are wrong
+        '405':
+          description: Method Not Allowed
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      description: Returning Clan Members
+      security:
+        - token: []
+    parameters:
+      - schema:
+          type: integer
+        name: clanId
+        in: path
+        required: true
+        description: Clan Id
+    options:
+      summary: ''
+      operationId: clansclanIdmembers
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/clans/{clanId}/members/{memberid}':
+    put:
+      summary: To perform the actions of kick from the clan or changing the clan leader. Only leaders can use these options
+      operationId: updateMember
+      parameters:
+        - name: clanId
+          in: path
+          required: true
+          description: Clan ID
+          schema:
+            type: integer
+        - name: memberid
+          in: path
+          required: true
+          description: Discord ID of the member
+          schema:
+            type: string
+        - name: accion
+          in: query
+          required: true
+          description: What you want to do with that member
+          schema:
+            type: string
+            enum:
+              - kick
+              - owner
+            example: kick
+      responses:
+        '202':
+          description: The change has been made correctly
+        '401':
+          description: Unauthorized
+        '405':
+          description: You do not have the necessary powers to take this action
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      description: |-
+        Update a member's information. You can kick out or pass on leadership to a member.
+        Only the clan leader can perform these actions
+      security:
+        - token: []
+    parameters:
+      - schema:
+          type: integer
+        name: memberid
+        in: path
+        required: true
+        description: Members ID
+      - schema:
+          type: integer
+        name: clanId
+        in: path
+        required: true
+        description: Clan Id
+    options:
+      summary: ''
+      operationId: clansclanIdmembersmemberid
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/clans/{clanId}/members/{memberid}/permissions':
+    parameters:
+      - schema:
+          type: string
+        name: clanId
+        in: path
+        required: true
+      - schema:
+          type: string
+        name: memberid
+        in: path
+        required: true
+    get:
+      summary: getMemberPermissions
+      tags:
+        - clans
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      operationId: getMemberPermissions
+      description: |-
+        Return a clan member's permissions
+        Only the clan leader and the clan member can use this endpoint.
+      parameters: []
+      security:
+        - token: []
+    options:
+      summary: ''
+      operationId: options-clans-clanId-members-memberid-permisions
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+    put:
+      summary: updateMemberPermissions
+      operationId: updateMemberPermissions
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      description: Only the leader can perform this action
+      tags:
+        - clans
+      parameters:
+        - schema:
+            type: boolean
+          in: query
+          name: request
+          required: true
+        - schema:
+            type: boolean
+          in: query
+          name: kickmembers
+          required: true
+        - schema:
+            type: boolean
+          in: query
+          name: walkers
+          required: true
+        - schema:
+            type: boolean
+          in: query
+          name: bot
+          required: true
+        - schema:
+            type: boolean
+          in: query
+          name: diplomacy
+          required: true
+      security:
+        - token: []
+  '/clans/{clanId}/requests':
+    get:
+      summary: Return the list of requests for entry to the clan
+      operationId: getRequests
+      parameters:
+        - name: clanId
+          in: path
+          required: true
+          description: Clan ID
+          schema:
+            type: integer
+      responses:
+        '202':
+          description: A JSON array of user requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    discordid:
+                      type: string
+                      description: Discord ID of the user request
+                      example: '000000000000000000'
+                    nickname:
+                      type: string
+                      description: Name of the user in the game
+                      example: TEST USER
+                    discordTag:
+                      type: string
+                      description: Request user discord tag
+                      example: DEMO#0000
+                    leaderid:
+                      type: string
+                      description: Discord ID of the clan leader
+                      example: '000000000000000000'
+                    message:
+                      type: string
+                      description: Message
+              examples:
+                example-1:
+                  value:
+                    - discordid: '000000000000000000'
+                      nickname: TEST USER
+                      discordTag: DEMO#0000
+                      leaderid: '000000000000000000'
+        '401':
+          description: You have to add the data requested by the API. Needs discordid and token
+        '405':
+          description: Method Not Allowed
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      description: Returns pending applications for entry into a clan
+      security:
+        - token: []
+    post:
+      summary: To send an request to the clan
+      operationId: sendRequest
+      parameters:
+        - name: clanId
+          in: path
+          required: true
+          description: Clan ID
+          schema:
+            type: integer
+        - name: discordid
+          in: query
+          required: true
+          description: Discord ID
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Request created
+        '405':
+          description: You already have a pending application to join a clan
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      description: 'Add a clan application, it can only be done if you are not in a clan'
+      security:
+        - token: []
+    parameters:
+      - schema:
+          type: integer
+        name: clanId
+        in: path
+        required: true
+        description: Clan Id
+    options:
+      summary: ''
+      operationId: clansclanIdrequests
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/clans/{clanId}/requests/{id}':
+    put:
+      summary: To accept or reject the request
+      operationId: updateRequest
+      parameters:
+        - name: clanId
+          in: path
+          required: true
+          description: Clan ID
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          description: Discord ID of the resquest
+          schema:
+            type: string
+        - name: accion
+          in: query
+          required: true
+          description: What you want to do with that request
+          example: accept
+          schema:
+            type: string
+            enum:
+              - reject
+              - accept
+      responses:
+        '202':
+          description: The request has been processed correctly
+        '401':
+          description: Unauthorized
+        '405':
+          description: You do not have the necessary powers to take this action
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      description: It serves to accept or reject an application for entry into a clan. Only the clan leader can accept or reject applications
+      security:
+        - token: []
+    parameters:
+      - schema:
+          type: integer
+        name: id
+        in: path
+        required: true
+        description: Request ID
+      - schema:
+          type: integer
+        name: clanId
+        in: path
+        required: true
+        description: Clan Id
+    options:
+      summary: ''
+      operationId: clansclanIdrequestid
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/clans/{clanId}/relationships':
+    get:
+      summary: Return the list of relationships for the clan
+      operationId: getRelationships
+      parameters:
+        - name: clanId
+          in: path
+          required: true
+          description: Clan ID
+          schema:
+            type: integer
+      responses:
+        '202':
+          description: A JSON array of clan relationships
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    leaderid:
+                      type: string
+                      description: Discord ID of the clan leader
+                      example: '000000000000000000'
+                    id:
+                      type: integer
+                      description: ID of the relationship
+                      example: 0
+                    typed:
+                      type: integer
+                      description: 'Type of relationship. 0 PNA, 1 Ally, 2 Enemy, 20 Waiting for cancel war, 10 Waiting for accept ally, 30 False PNA, 31 False Ally, 32 False War'
+                      example: 0
+                    flagcolor:
+                      type: string
+                      description: Shows the colour of the clan in hexadecimal
+                      example: '#e3f218'
+                    name:
+                      type: string
+                      description: Clan name
+                      example: Example Clan
+                    symbol:
+                      type: string
+              examples:
+                example-1:
+                  value:
+                    - leaderid: '000000000000000000'
+                      id: 0
+                      typed: 0
+                      flagcolor: '#e3f218'
+                      name: Example Clan
+        '401':
+          description: You have to add the data requested by the API. Needs discordid and token
+        '405':
+          description: Method Not Allowed
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      description: |
+        Return the clan's diplomacy
+      security:
+        - token: []
+    post:
+      summary: To create new relationships
+      operationId: createRelationship
+      parameters:
+        - name: clanId
+          in: path
+          required: true
+          description: Clan ID
+          schema:
+            type: integer
+        - name: typed
+          in: query
+          required: true
+          description: 'Type of relationship. 0 PNA, 1 Ally, 2 Enemy, 30 False PNA, 31 False Ally, 32 False War'
+          schema:
+            type: integer
+        - name: clanflag
+          in: query
+          required: true
+          description: Shows the colour of the clan in hexadecimal
+          schema:
+            type: string
+            example: '#e3f218'
+        - name: nameotherclan
+          in: query
+          required: true
+          description: Clan name
+          schema:
+            type: string
+            example: Example Clan
+        - schema:
+            type: string
+          in: query
+          name: symbol
+          description: Image of the flag
+          required: true
+      responses:
+        '201':
+          description: The relationship of diplomacy has been created
+        '405':
+          description: Method Not Allowed
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      description: 'Type of relationship. 0 PNA, 1 Ally, 2 Enemy, 30 False PNA, 31 False Ally, 32 False War'
+      security:
+        - token: []
+    parameters:
+      - schema:
+          type: integer
+        name: clanId
+        in: path
+        required: true
+        description: Clan Id
+    options:
+      summary: ''
+      operationId: clansclanIdrelationships
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/clans/{clanId}/relationships/{id}':
+    delete:
+      summary: Delete the indicated relationship
+      operationId: deleteRelationship
+      parameters:
+        - name: clanId
+          in: path
+          required: true
+          description: Clan ID
+          schema:
+            type: integer
+        - name: id
+          in: path
+          required: true
+          description: Relationship ID
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Relationship deleted
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - clans
+      description: |-
+        It erases a diplomatic relationship. In case of war the other clan has to accept it.
+        Only the clan leader can perform this action
+      security:
+        - token: []
+    parameters:
+      - schema:
+          type: integer
+        name: id
+        in: path
+        required: true
+        description: Relationship Id
+      - schema:
+          type: integer
+        name: clanId
+        in: path
+        required: true
+        description: Clan Id
+    options:
+      summary: ''
+      operationId: clansclanIdrelationshipsid
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/clans/{clanid}/tech':
+    parameters:
+      - schema:
+          type: string
+        name: clanid
+        in: path
+        required: true
+    get:
+      summary: Return members who have known a technology
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      operationId: seeWhoHasLearntIt
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: tech
+        - schema:
+            type: string
+          in: query
+          name: tree
+      description: Returns all clan members who have learned that technology
+      security:
+        - token: []
+      tags:
+        - tech
+    options:
+      summary: ''
+      operationId: options-clans-clanid-tech
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  /maps:
+    get:
+      summary: Return all maps for that user and his clan
+      operationId: getMaps
+      parameters: []
+      responses:
+        '200':
+          description: A JSON array of maps
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    mapid:
+                      type: integer
+                      description: Map ID
+                      example: 0
+                    typemap:
+                      type: string
+                      description: Name of the type of map
+                      example: canyon
+                    discordid:
+                      type: string
+                      description: Map owners discord ID
+                      example: '0000000000000000000'
+                    name:
+                      type: string
+                      description: Map name
+                      example: Example map
+                    dateofburning:
+                      type: string
+                      description: Date of the day the map was burned. aaaa-mm-dd
+                      example: '2020-10-28'
+                      format: date
+                    pass:
+                      type: string
+                      description: Password that has the map
+                      example: 124567890pass
+                    allowedit:
+                      type: boolean
+                      description: Shows whether the map can be edited with the password or not
+                      example: false
+              examples:
+                example-1:
+                  value:
+                    - mapid: 0
+                      typemap: canyon
+                      discordid: '0000000000000000000'
+                      name: Example map
+                      dateofburning: '2020-10-28'
+                      pass: 124567890pass
+                      allowedit: false
+        '401':
+          description: Unauthorized
+      tags:
+        - maps
+      description: Return your map list and your clan's maps
+      security:
+        - token: []
+    post:
+      summary: To create a new map
+      operationId: addMap
+      parameters:
+        - name: mapname
+          in: query
+          required: true
+          description: Map name
+          schema:
+            type: string
+        - name: mapdate
+          in: query
+          required: true
+          description: Date of the day the map was burned. aaaa-mm-dd
+          schema:
+            type: string
+            format: date
+        - name: maptype
+          in: query
+          required: true
+          description: Name of the type of map
+          schema:
+            type: string
+            enum:
+              - Canyon
+              - CanyonB
+              - SleepingGiants
+              - SleepingGiantsB
+              - Volcanic
+              - Crater
+              - Volcanyon
+              - AncientCity
+            example: Crater
+      responses:
+        '201':
+          description: Map created
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - maps
+      description: |-
+        To create a map. The map type has to be one defined in the map json
+        If you do not send the user data, a user without user will be created
+    options:
+      summary: ''
+      operationId: maps
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/maps/{mapId}':
+    put:
+      summary: Edit map
+      operationId: editMap
+      parameters:
+        - name: mapId
+          in: path
+          required: true
+          description: Map ID
+          schema:
+            type: integer
+        - name: mapname
+          in: query
+          required: true
+          description: Map name
+          schema:
+            type: string
+        - name: mapdate
+          in: query
+          required: true
+          description: Date of the day the map was burned. aaaa-mm-dd
+          schema:
+            type: string
+            format: date
+        - name: allowediting
+          in: query
+          description: Shows whether the map can be edited with the password or not
+          schema:
+            type: boolean
+          required: true
+        - name: mappass
+          in: query
+          description: Paswoord to view the map without login
+          schema:
+            type: string
+          required: true
+      responses:
+        '202':
+          description: Map edited
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - maps
+      description: Edit map data
+      security:
+        - token: []
+    delete:
+      summary: Delete map
+      operationId: deleteMap
+      parameters:
+        - name: mapId
+          in: path
+          required: true
+          description: Map ID
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Map deleted
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - maps
+      description: 'Delete a map, only the owner of the map can do this.'
+      security:
+        - token: []
+    parameters:
+      - schema:
+          type: integer
+        name: mapId
+        in: path
+        required: true
+        description: Map Id
+    options:
+      summary: ''
+      operationId: mapsmapId
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+    get:
+      summary: ''
+      operationId: getMap
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '503':
+          description: Service Unavailable
+      description: Returns map information
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: mappass
+          required: true
+          description: Pass for the map
+      tags:
+        - maps
+  '/maps/{mapId}/resources':
+    get:
+      summary: Return all resources for that map
+      operationId: getResources
+      parameters:
+        - name: mapId
+          in: path
+          required: true
+          description: Map ID
+          schema:
+            type: integer
+        - schema:
+            type: string
+          in: query
+          name: mappass
+          description: Map Password
+          required: true
+      responses:
+        '200':
+          description: A JSON array of resources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    resourceid:
+                      type: integer
+                      description: Resource ID
+                      example: 0
+                    mapid:
+                      type: integer
+                      description: Map ID
+                      example: 0
+                    resourcetype:
+                      type: string
+                      description: Type of resource
+                      example: Aloe
+                    quality:
+                      type: integer
+                      description: Quality of the resource
+                      example: 0
+                    x:
+                      type: number
+                      description: X-coordinate
+                      example: 120.25
+                    'y':
+                      type: number
+                      description: Y-coordinate
+                      example: 100.32
+                    token:
+                      type: string
+                      description: 'If the map allows resources to be edited it also returns the editing token for that resource. In order to edit or delete this resource, you must'
+                      example: oneToken123
+                    typemap:
+                      type: string
+                      description: Name of the type of map
+                      example: canyon
+              examples:
+                example-1:
+                  value:
+                    - resourceid: 0
+                      mapid: 0
+                      resourcetype: Aloe
+                      quality: 0
+                      x: 120.25
+                      'y': 100.32
+                      token: oneToken123
+                      typemap: canyon
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      description: Returns all resources on a map
+      tags:
+        - maps
+    post:
+      summary: To create a new resource in the map
+      operationId: addResourceMap
+      parameters:
+        - name: mapId
+          in: path
+          required: true
+          description: Map ID
+          schema:
+            type: integer
+        - schema:
+            type: string
+          in: query
+          name: resourcetype
+          required: true
+          description: Type of resource
+        - schema:
+            type: integer
+          in: query
+          name: quality
+          description: Resource quality
+        - schema:
+            type: number
+          in: query
+          name: x
+          description: Resource Coordinate X
+          required: true
+        - schema:
+            type: number
+          in: query
+          name: 'y'
+          description: Resource Coordinate Y
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: description
+          description: Resource description
+        - schema:
+            type: string
+          in: query
+          name: mappass
+          description: Map Pass
+          required: true
+      responses:
+        '202':
+          description: Resource created
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - maps
+      description: |-
+        Add a resource on the map.
+        You need to be the map owner or have the map password to create a resource.
+    parameters:
+      - schema:
+          type: integer
+        name: mapId
+        in: path
+        required: true
+        description: Map Id
+    options:
+      summary: ''
+      operationId: mapsmapIdresources
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/maps/{mapId}/resources/{resourceId}':
+    put:
+      summary: For edit the resource
+      operationId: editResource
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          description: Resource ID
+          schema:
+            type: integer
+        - name: token
+          in: query
+          required: true
+          description: Token generated
+          schema:
+            type: string
+        - name: description
+          in: query
+          description: Description for resource
+          schema:
+            type: string
+        - schema:
+            type: string
+            format: date-time
+          in: query
+          name: harvested
+      responses:
+        '202':
+          description: Edited resource
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      description: Edit the description of a resource or last harvested
+      tags:
+        - maps
+    delete:
+      summary: Delete the resource
+      operationId: deleteResource
+      parameters:
+        - name: resourceId
+          in: path
+          required: true
+          description: Resource ID
+          schema:
+            type: integer
+        - name: token
+          in: query
+          required: true
+          description: Token generated
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Resource deleted
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      description: Delete a resource
+      tags:
+        - maps
+    parameters:
+      - schema:
+          type: integer
+        name: resourceId
+        in: path
+        required: true
+        description: Resource ID
+      - schema:
+          type: string
+        name: mapId
+        in: path
+        required: true
+    options:
+      summary: ''
+      operationId: mapsmapIdresourcesresourceId
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  /walkers:
+    get:
+      summary: Return all walkers from clan
+      operationId: getWalkers
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: name
+        - schema:
+            type: string
+          in: query
+          name: owner
+        - schema:
+            type: string
+          in: query
+          name: lastuser
+        - schema:
+            type: string
+          in: query
+          name: walkerid
+        - schema:
+            type: integer
+            default: 100
+          in: query
+          name: pageSize
+        - schema:
+            type: boolean
+          in: query
+          name: ready
+        - schema:
+            type: integer
+            default: 2
+          in: query
+          name: page
+        - schema:
+            type: string
+          in: query
+          name: use
+          description: 'Personal, PVP, Farming'
+        - schema:
+            type: string
+          in: query
+          name: type
+          description: 'Walker Type: Dinghy, Falco...'
+      responses:
+        '200':
+          description: JSON array with the list of walkers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Walker'
+              examples:
+                example-1:
+                  value:
+                    - leaderid: '000000000000000000'
+                      discordid: '000000000000000000'
+                      walkerid: 0
+                      name: dm94dani - 4x4 v2
+                      ownerUser: dm94dani
+                      lastuser: dm94dani
+                      datelastuse: '2020-11-18'
+                example-2:
+                  value:
+                    - leaderid: '000000000000000000'
+                      discordid: string
+                      walkerid: 0
+                      name: dm94dani - 4x4 v2
+                      ownerUser: dm94dani
+                      lastuser: dm94dani
+                      datelastuse: '2020-11-18'
+        '401':
+          description: The data entered is incorrect
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - walkers
+      description: Return walkers from a clan
+      security:
+        - token: []
+    options:
+      summary: ''
+      operationId: options-walkers
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/walkers/{walkerId}':
+    put:
+      summary: editWalker
+      operationId: editWalker
+      parameters:
+        - name: walkerId
+          in: path
+          required: true
+          description: Walker ID
+          schema:
+            type: integer
+        - name: owner
+          in: query
+          description: Walker owner
+          schema:
+            type: string
+        - name: use
+          in: query
+          description: Walker use
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: Walker type
+          schema:
+            type: string
+        - name: description
+          in: query
+          description: Walker description
+          schema:
+            type: string
+        - schema:
+            type: string
+          in: query
+          name: ready
+          description: Walker isReady?
+      responses:
+        '202':
+          description: Walker edited correctly
+        '401':
+          description: Unauthorized
+        '503':
+          description: Service Unavailable
+      tags:
+        - walkers
+      description: 'You can edit the information of a walker, it is specially created to update the data of the discord log and assign an owner to a walker'
+      security:
+        - token: []
+    delete:
+      summary: deleteWalker
+      operationId: deleteWalker
+      parameters:
+        - name: walkerId
+          in: path
+          required: true
+          description: Walker ID
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Walker deleted correctly
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - walkers
+      description: Remove a walker
+      security:
+        - token: []
+    parameters:
+      - schema:
+          type: integer
+        name: walkerId
+        in: path
+        required: true
+        description: Walker Id
+    options:
+      summary: ''
+      operationId: options-walkers-walkerId
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  /walkers/auth:
+    post:
+      summary: linkServer
+      tags:
+        - walkers
+      responses:
+        '202':
+          description: Accepted
+        '401':
+          $ref: '#/components/responses/503'
+        '403':
+          description: Forbidden
+        '503':
+          $ref: '#/components/responses/503'
+      operationId: linkServer
+      description: Link a discord server to the clan
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: discordserverid
+          description: Discord Server ID
+          required: true
+      security:
+        - token: []
+    get:
+      summary: getDiscordServers
+      operationId: getDiscordServers
+      responses:
+        '202':
+          description: List of discord servers
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      description: Return the discord servers it owns
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: code
+          description: Discord Code
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: redirect
+          required: true
+          description: URL redirection
+      tags:
+        - walkers
+      security:
+        - token: []
+    options:
+      summary: ''
+      operationId: options-walkers-auth
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  /trades:
+    get:
+      summary: getTrades
+      operationId: getTrades
+      responses:
+        '200':
+          description: JSON array with the list of trades
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    idtrade:
+                      type: integer
+                      description: ID of the trade
+                      example: 0
+                    discordid:
+                      type: string
+                      description: Discord ID of the trader owner
+                    type:
+                      type: string
+                      description: Supply or Demand
+                    resource:
+                      type: string
+                      description: Type of resource
+                      example: Aloe
+                    amount:
+                      type: integer
+                      description: Amount of the resource
+                      example: 0
+                    quality:
+                      type: integer
+                      description: Quality of the resource. Max 100
+                      example: 0
+                    region:
+                      type: string
+                      description: 'EU, NA, SA , ASIA, OCE'
+                      example: EU
+                    nickname:
+                      type: string
+                      description: Nick in the game of the trader owner
+                      example: Dm94Dani
+                    discordtag:
+                      type: string
+                      description: Discord Tag of the trader owner
+                      example: Dm94Dani#6385
+                    price:
+                      type: integer
+              examples:
+                example-1:
+                  value:
+                    - idtrade: 0
+                      discordid: '0000000000000000'
+                      type: Supply
+                      resource: Aloe
+                      amount: 0
+                      quality: 0
+                      region: EU
+                      nickname: Dm94Dani
+                      discordtag: Dm94Dani#6385
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - trades
+      description: Returns all trades
+      parameters:
+        - schema:
+            type: integer
+            default: 1
+            minimum: 1
+          in: query
+          name: page
+        - schema:
+            type: integer
+            default: 20
+            maximum: 100
+            minimum: 1
+          in: query
+          name: pageSize
+        - schema:
+            type: string
+            enum:
+              - Supply
+              - Demand
+          in: query
+          name: type
+        - schema:
+            type: string
+          in: query
+          name: resource
+        - schema:
+            type: string
+          in: query
+          name: region
+    post:
+      summary: createTrade
+      operationId: createTrade
+      parameters:
+        - name: type
+          in: query
+          required: true
+          description: Type of trade. Demand or Supply
+          schema:
+            type: string
+            enum:
+              - Demand
+              - Supply
+        - name: resource
+          in: query
+          required: true
+          description: Type of resource. Example Aloe
+          schema:
+            type: string
+        - name: amount
+          in: query
+          required: false
+          description: Amount of the resource
+          schema:
+            type: integer
+        - name: quality
+          in: query
+          required: false
+          description: Quality of the resource. Max 100
+          schema:
+            type: integer
+        - name: region
+          in: query
+          required: true
+          description: 'Region of the trade. EU, NA, SA , ASIA, OCE'
+          schema:
+            type: string
+            enum:
+              - EU
+              - NA
+              - SA
+              - ASIA
+              - OCE
+        - schema:
+            type: integer
+          in: query
+          name: price
+          description: Price per resource
+      responses:
+        '201':
+          description: Trade created
+        '400':
+          description: Some data are missing
+        '401':
+          description: These connection data are wrong
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - trades
+      description: Create a trade
+      security:
+        - token: []
+    parameters: []
+    options:
+      summary: ''
+      operationId: options-trades
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/trades/{tradeId}':
+    delete:
+      summary: deleteTrade
+      operationId: deleteTrade
+      parameters: []
+      responses:
+        '204':
+          description: Trade deleted
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - trades
+      description: Remove an trade
+      security:
+        - token: []
+    parameters:
+      - schema:
+          type: integer
+        name: tradeId
+        in: path
+        required: true
+        description: Trade Id
+    options:
+      summary: ''
+      operationId: options-trades-tradeId
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  /users/auth:
+    post:
+      summary: authDiscord
+      tags:
+        - users
+      operationId: authDiscord
+      description: To create a new account with discord
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: code
+          description: Discord Code
+          required: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  discordid:
+                    type: string
+                  token:
+                    type: string
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+    parameters: []
+    options:
+      summary: ''
+      operationId: options-users-auth
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  /recipes:
+    post:
+      summary: addRecipe
+      operationId: addRecipe
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        count:
+                          type: integer
+              examples:
+                example-1:
+                  value:
+                    token: sdf345
+                    items:
+                      - name: Barrier Base
+                        count: 10
+                      - name: Cement Foundation
+                        count: 3
+        '400':
+          description: Some data are missing
+        '503':
+          $ref: '#/components/responses/503'
+      description: Add a list of recipes that can then be shared.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: items
+          description: List of recipe items
+          required: true
+      tags:
+        - recipes
+    options:
+      summary: ''
+      operationId: options-recipes
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/recipes/{recipeToken}':
+    parameters:
+      - schema:
+          type: string
+        name: recipeToken
+        in: path
+        required: true
+        description: Token generated from that recipe
+    get:
+      summary: getRecipe
+      tags:
+        - recipes
+      responses:
+        '200':
+          description: JSON array with all items in that recipe
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  token:
+                    type: string
+                    minLength: 1
+                  items:
+                    type: array
+                    uniqueItems: true
+                    minItems: 1
+                    items:
+                      required:
+                        - name
+                        - count
+                      properties:
+                        name:
+                          type: string
+                          minLength: 1
+                        count:
+                          type: number
+                required:
+                  - token
+                  - items
+              examples:
+                example-1:
+                  value:
+                    token: sdf345
+                    items:
+                      - name: Barrier Base
+                        count: 10
+                      - name: Cement Foundation
+                        count: 3
+        '404':
+          description: Not Found
+        '503':
+          $ref: '#/components/responses/503'
+      operationId: getRecipe
+      description: Returns an array with all the items of that recipe
+      parameters: []
+    options:
+      summary: ''
+      operationId: options-recipes-recipeToken
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  /clusters:
+    get:
+      summary: getClusters
+      tags:
+        - clusters
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ''
+                minItems: 1
+                uniqueItems: true
+                items:
+                  type: object
+                  properties:
+                    region:
+                      type: string
+                      minLength: 1
+                    name:
+                      type: string
+                      minLength: 1
+                    clan_limit:
+                      type: integer
+                    crossplay:
+                      type: boolean
+                  required:
+                    - region
+                    - name
+                    - clan_limit
+                    - crossplay
+              examples:
+                example-1:
+                  value:
+                    - region: EU
+                      name: Lush Realm
+                      clan_limit: 12
+                      crossplay: true
+      operationId: getClusters
+      description: Returns the list of server clusters.
+      parameters: []
+    options:
+      summary: ''
+      operationId: options-clusters
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/bot/config/{discordid}':
+    parameters:
+      - schema:
+          type: string
+        name: discordid
+        in: path
+        required: true
+        description: Server Discord ID
+    get:
+      summary: Get Discord Config By Server
+      tags:
+        - bot
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BotConfig'
+        '401':
+          description: Unauthorized
+        '503':
+          description: Service Unavailable
+      operationId: getDiscordConfigByServer
+      description: Return the bot configuration
+      security:
+        - apiKey: []
+    put:
+      summary: Update Bot Config By Server
+      operationId: updateBotConfigByServer
+      responses:
+        '202':
+          description: Accepted
+        '401':
+          description: Unauthorized
+        '503':
+          description: Service Unavailable
+      security:
+        - apiKey: []
+      parameters:
+        - schema:
+            type: string
+            minLength: 0
+            maxLength: 2
+            default: en
+          in: query
+          name: languaje
+        - schema:
+            type: boolean
+          in: query
+          name: clanlog
+        - schema:
+            type: boolean
+          in: query
+          name: kick
+        - schema:
+            type: boolean
+          in: query
+          name: readypvp
+        - schema:
+            type: string
+          in: query
+          name: walkeralarm
+      description: Update the bot configuration
+      tags:
+        - bot
+    options:
+      summary: ''
+      operationId: options-bot-config-discordid
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  /bot/config:
+    get:
+      summary: Get Bot Configs
+      tags:
+        - bot
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BotConfig'
+              examples:
+                example-1:
+                  value:
+                    - discordid: string
+                      botLanguaje: en
+                      readClanLog: true
+                      automaticKick: false
+                      setNotReadyPVP: false
+        '401':
+          description: Unauthorized
+        '503':
+          description: Service Unavailable
+      operationId: getBotConfigs
+      description: Return all configurations
+      security:
+        - apiKey: []
+    options:
+      summary: ''
+      operationId: options-bot-config
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  /bot/walkers:
+    get:
+      summary: getWalkers
+      tags:
+        - bot
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Walker'
+        '401':
+          description: Unauthorized
+        '503':
+          description: Service Unavailable
+      operationId: getWalkersByServer
+      security:
+        - apiKey: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: discordid
+          required: true
+          description: Discord Server ID
+        - schema:
+            type: string
+          in: query
+          name: name
+          description: Walker Name
+        - schema:
+            type: string
+          in: query
+          name: owner
+          description: Walker Owner
+        - schema:
+            type: string
+          in: query
+          name: lastuser
+          description: Walker Last User
+        - schema:
+            type: integer
+            minimum: 10
+            maximum: 100
+          in: query
+          name: pageSize
+        - schema:
+            type: string
+          in: query
+          name: page
+          description: Page number
+        - schema:
+            type: string
+          in: query
+          name: walkerid
+          description: Walker ID
+        - schema:
+            type: boolean
+          in: query
+          name: ready
+          description: 'True = Is ready, false = no'
+        - schema:
+            type: string
+            enum:
+              - pvp
+              - farming
+              - personal
+          in: query
+          name: use
+          description: Walker Use
+        - schema:
+            type: string
+          in: query
+          name: desc
+          description: Walker description
+        - schema:
+            type: string
+          in: query
+          name: type
+          description: 'Walker type: Falco, Dinghy..'
+      description: Return a walker list
+    post:
+      summary: Add a walker
+      operationId: addWalker
+      parameters:
+        - name: walkerid
+          in: query
+          required: true
+          description: Walker ID
+          schema:
+            type: integer
+        - name: discordid
+          in: query
+          required: true
+          description: Discord Server ID
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Walker Name
+          schema:
+            type: string
+          required: true
+        - name: lastUser
+          in: query
+          required: true
+          description: Last user to take the walker from the lobby
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Walker created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      description: Add or update a walker
+      security:
+        - apiKey: []
+      tags:
+        - bot
+    options:
+      summary: ''
+      operationId: options-bot-walkers
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/bot/walkers/{discordid}':
+    parameters:
+      - schema:
+          type: string
+        name: discordid
+        in: path
+        required: true
+    put:
+      summary: botEditWalker
+      operationId: botEditWalker
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      tags:
+        - bot
+      description: Update walker
+      security:
+        - apiKey: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: walkerid
+          required: true
+        - schema:
+            type: boolean
+            default: false
+          in: query
+          name: ready
+          required: true
+    options:
+      summary: ''
+      operationId: options-bot-walkers-walkerId
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/bot/clans/{discordid}':
+    delete:
+      summary: kickFromClan
+      operationId: kickFromClan
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
+        '503':
+          description: Service Unavailable
+      tags:
+        - bot
+      description: Kick a clan member
+      security:
+        - apiKey: []
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: nick
+    options:
+      summary: ''
+      operationId: options-bot-users
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+    parameters:
+      - schema:
+          type: string
+        name: discordid
+        in: path
+        required: true
+        description: Discord ID
+    post:
+      summary: linkClan
+      operationId: linkClan
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+      description: |-
+        Allows to link the discord server with the clan.
+        This can only be done by clan leaders or anyone with bot permissions.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: memberid
+          description: Discord ID
+      tags:
+        - bot
+      security:
+        - apiKey: []
+  '/bot/{discordid}/tech':
+    parameters:
+      - schema:
+          type: string
+        name: discordid
+        in: path
+        required: true
+    get:
+      summary: getWhoHasLearn
+      tags:
+        - bot
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '503':
+          $ref: '#/components/responses/503'
+      operationId: getWhoHasLearn
+      description: Give who in your clan has learned something
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: tree
+          description: Technology tree of the item
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: tech
+          description: Item name
+          required: true
+      security:
+        - apiKey: []
+    options:
+      summary: ''
+      operationId: options-bot-clans-discordid-tech
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: addTechByBot
+      operationId: addTechByBot
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '503':
+          $ref: '#/components/responses/503'
+      description: Adds the list of learned technologies to that user.
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: tree
+          required: true
+          description: Tree of technology
+        - schema:
+            type: string
+          in: query
+          name: tech
+          description: Item name
+          required: true
+      tags:
+        - bot
+      security:
+        - apiKey: []
+  /bot/trades:
+    post:
+      summary: createTradeFromBot
+      operationId: createTradefromBot
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: discordid
+          required: true
+          description: User Discord ID
+        - name: type
+          in: query
+          required: true
+          description: Type of trade. Demand or Supply
+          schema:
+            type: string
+            enum:
+              - Demand
+              - Supply
+        - name: resource
+          in: query
+          required: true
+          description: Type of resource. Example Aloe
+          schema:
+            type: string
+        - name: amount
+          in: query
+          required: false
+          description: Amount of the resource
+          schema:
+            type: integer
+        - name: quality
+          in: query
+          required: false
+          description: Quality of the resource. Max 100
+          schema:
+            type: integer
+        - name: region
+          in: query
+          required: true
+          description: 'Region of the trade. EU, NA, SA , ASIA, OCE'
+          schema:
+            type: string
+            enum:
+              - EU
+              - NA
+              - SA
+              - ASIA
+              - OCE
+        - schema:
+            type: integer
+          in: query
+          name: price
+          description: Price per resource
+      responses:
+        '201':
+          description: Trade created
+        '400':
+          description: Some data are missing
+        '401':
+          description: These connection data are wrong
+        '503':
+          $ref: '#/components/responses/503'
+      description: Create a trade
+      security:
+        - apiKey: []
+      tags:
+        - trades
+    options:
+      summary: ''
+      operationId: options-bot-trades
+      responses:
+        '200':
+          description: OK
+      description: Endpoint to avoid problems with CORS
+  '/bot/clans/{discordid}/members':
+    parameters:
+      - schema:
+          type: string
+        name: discordid
+        in: path
+        required: true
+    get:
+      summary: getMembersPermisionsBot
+      tags:
+        - bot
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '503':
+          $ref: '#/components/responses/503'
+      operationId: getMembersPermisionsBot
+      description: Return clan members permisions
+      security:
+        - apiKey: []
+      parameters: []
+    options:
+      summary: ''
+      operationId: options-bot-clans-discordid-members
+      responses:
+        '200':
+          description: OK
+  '/bot/clans/{discordid}/relationships':
+    parameters:
+      - schema:
+          type: string
+        name: discordid
+        in: path
+        required: true
+    get:
+      summary: getRelationshipsByBot
+      tags:
+        - bot
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '503':
+          description: Service Unavailable
+      operationId: getRelationshipsByBot
+      description: Return the list of relationships for the clan
+      security:
+        - apiKey: []
+    options:
+      summary: ''
+      operationId: options-bot-clans-discordid-relationships
+      responses:
+        '200':
+          description: OK
+servers:
+  - url: 'https://api.stiletto.live/v2'
+tags:
+  - name: bot
+  - name: clans
+  - name: clusters
+  - name: maps
+  - name: recipes
+  - name: tech
+  - name: trades
+  - name: users
+  - name: walkers
+components:
+  securitySchemes:
+    apiKey:
+      name: apikey
+      type: apiKey
+      in: header
+    token:
+      type: http
+      scheme: bearer
+  responses:
+    '503':
+      description: Error connecting to database
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              Error:
+                type: string
+          examples:
+            example-1:
+              value:
+                Error: Error connecting to database
+      headers: {}
+  schemas:
+    BotConfig:
+      title: BotConfig
+      type: object
+      description: Discord Bot Configuration
+      properties:
+        serverdiscordid:
+          type: string
+        botLanguaje:
+          type: string
+          minLength: 0
+          maxLength: 2
+          default: en
+        readClanLog:
+          type: boolean
+          default: true
+        automaticKick:
+          type: boolean
+          default: false
+        setNotReadyPVP:
+          type: boolean
+          default: false
+        walkeralarm:
+          type: boolean
+          default: false
+    Walker:
+      type: object
+      properties:
+        discordid:
+          type: string
+          minLength: 1
+        walkerid:
+          type: integer
+        name:
+          type: string
+          minLength: 1
+        ownerUser:
+          type: string
+          minLength: 1
+        lastuser:
+          type: string
+          minLength: 1
+        datelastuse:
+          type: string
+          format: date
+        type:
+          type: string
+          example: Dinghy
+        walker_use:
+          type: string
+          example: PVP
+          enum:
+            - PVP
+            - Farming
+            - Personal
+        isReady:
+          type: boolean
+        description:
+          type: string
+          maxLength: 200
+    ClanInfo:
+      description: ''
+      type: object
+      properties:
+        clanid:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+        discordid:
+          type: string
+          minLength: 1
+        leaderid:
+          type: string
+          minLength: 1
+        invitelink:
+          type: string
+        recruitment:
+          type: string
+          minLength: 1
+        flagcolor:
+          type: string
+          minLength: 1
+        symbol:
+          type: string
+          minLength: 1
+        region:
+          type: string
+          minLength: 1
+        discordTag:
+          type: string
+          minLength: 1
+      required:
+        - clanid
+        - name
+        - discordid
+        - leaderid
+        - invitelink
+        - recruitment
+        - flagcolor
+        - symbol
+        - region
+        - discordTag
+      x-examples:
+        example-1:
+          clanid: '82'
+          name: Rise
+          discordid: '725047112047394916'
+          leaderid: '106828464081879040'
+          invitelink: ''
+          recruitment: '1'
+          flagcolor: '#ffff00'
+          symbol: C27
+          region: EU-Official
+          discordTag: peq#5814
+      title: ClanInfo
